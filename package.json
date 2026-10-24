@@ -1,0 +1,16 @@
+{
+  "name": "kleinanzeigen-translate",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "node test/translate.test.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  },
+  "private": true
+}

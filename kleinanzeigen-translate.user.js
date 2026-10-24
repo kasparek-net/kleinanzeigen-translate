@@ -8,6 +8,9 @@
 // @run-at       document-idle
 // @grant        GM.xmlHttpRequest
 // @connect      translate.googleapis.com
+// @homepageURL  https://github.com/kasparek-net/kleinanzeigen-translate
+// @updateURL    https://raw.githubusercontent.com/kasparek-net/kleinanzeigen-translate/main/kleinanzeigen-translate.user.js
+// @downloadURL  https://raw.githubusercontent.com/kasparek-net/kleinanzeigen-translate/main/kleinanzeigen-translate.user.js
 // ==/UserScript==
 
 (function () {

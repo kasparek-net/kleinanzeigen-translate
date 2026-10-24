@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Kleinanzeigen in English
 // @namespace    https://github.com/kasparek-net
-// @description  Automatically translates Kleinanzeigen.de from German to English
-// @version      1.0
+// @description  Automatically translates Kleinanzeigen.de from German to English and hides ads
+// @version      1.1
 // @license      MIT
 // @match        *://*.kleinanzeigen.de/*
-// @run-at       document-idle
+// @run-at       document-start
 // @grant        GM.xmlHttpRequest
 // @connect      translate.googleapis.com
 // @homepageURL  https://github.com/kasparek-net/kleinanzeigen-translate
@@ -14,6 +14,36 @@
 // ==/UserScript==
 
 (function () {
+  const ADS = [
+    ".sticky-advertisement",
+    ".liberty-filled:not(.liberty-gallery-slot)",
+    "[id^='google_ads_iframe']",
+    "#app-install-interstitial",
+    ".j-liberty-wrapper:not(.liberty-gallery-slot)",
+    ".liberty-hide-unfilled",
+    "li:has(> .liberty-hide-unfilled)",
+    ".bannerplacement-fullwidth:not(.liberty-gallery-slot *)",
+    ".bannerplacement-sticky",
+    ".adlist--item-banner",
+    "[id^='srpb-']",
+    "[id*='-sky-']",
+    "[id$='billboard']",
+    "#viewad-sidebar-banner",
+  ];
+  const adSelector = ADS.join(",\n");
+  const adStyle = document.createElement("style");
+  adStyle.textContent =
+    adSelector +
+    " { display: none !important; }\n" +
+    ".site-base--left-banner, .site-base--right-banner { visibility: hidden !important; }";
+  if (document.documentElement) document.documentElement.append(adStyle);
+  else
+    new MutationObserver((_, o) => {
+      if (!document.documentElement) return;
+      document.documentElement.append(adStyle);
+      o.disconnect();
+    }).observe(document, { childList: true });
+
   const SKIP = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "CODE", "PRE", "SVG"]);
   const ATTRS = ["placeholder", "title", "aria-label"];
   const BATCH_CHARS = 1800;
@@ -42,7 +72,7 @@
   }
 
   async function translate(text) {
-    const data = await request(text);
+    const data = await request(text).catch(() => new Promise((r) => setTimeout(r, 1000)).then(() => request(text)));
     return data[0].map((part) => part[0]).join("");
   }
 
@@ -58,7 +88,8 @@
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
       acceptNode(node) {
         if (node.nodeType === Node.ELEMENT_NODE) {
-          if (SKIP.has(node.nodeName.toUpperCase()) || node.isContentEditable) return NodeFilter.FILTER_REJECT;
+          if (SKIP.has(node.nodeName.toUpperCase()) || node.isContentEditable || node.matches(adSelector))
+            return NodeFilter.FILTER_REJECT;
           return NodeFilter.FILTER_SKIP;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -143,13 +174,9 @@
     }
   }
 
-  document.documentElement.lang = "en";
-  run(document.body);
-  document.title && translate(document.title).then((t) => (document.title = t), () => {});
-
   let queued = new Set();
   let timer;
-  new MutationObserver((mutations) => {
+  const observer = new MutationObserver((mutations) => {
     for (const m of mutations) {
       if (m.type === "characterData") queued.add(m.target.parentNode);
       else if (m.type === "attributes") queued.add(m.target);
@@ -161,11 +188,21 @@
       queued = new Set();
       roots.forEach((r) => r && r.isConnected && run(r));
     }, 200);
-  }).observe(document.body, {
-    childList: true,
-    subtree: true,
-    characterData: true,
-    attributes: true,
-    attributeFilter: ATTRS,
   });
+
+  function start() {
+    document.documentElement.lang = "en";
+    run(document.body);
+    document.title && translate(document.title).then((t) => (document.title = t), () => {});
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ATTRS,
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
 })();

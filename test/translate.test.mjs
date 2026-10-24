@@ -38,6 +38,13 @@ assert.equal(stats.lang, "en");
 assert.ok(stats.translated / stats.total > 0.95, "most text nodes translated");
 assert.ok(!(await page.evaluate(() => document.body.innerText.includes("EN:EN:"))), "no double translation");
 
+const visibleAds = await page.evaluate(() =>
+  [...document.querySelectorAll("[id^='srpb-'], [id*='-sky-'], .site-base--right-banner, .bannerplacement-sticky")]
+    .filter((el) => el.getClientRects().length && getComputedStyle(el).visibility !== "hidden")
+    .map((el) => el.id || el.className)
+);
+assert.deepEqual(visibleAds, [], "ad slots hidden");
+
 await page.evaluate(() => {
   const div = document.createElement("div");
   div.id = "late";

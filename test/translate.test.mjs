@@ -45,6 +45,11 @@ const visibleAds = await page.evaluate(() =>
 );
 assert.deepEqual(visibleAds, [], "ad slots hidden");
 
+assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).filter), "none", "light mode untouched");
+await page.emulateMedia({ colorScheme: "dark" });
+assert.match(await page.evaluate(() => getComputedStyle(document.documentElement).filter), /invert/, "dark mode inverts page");
+await page.emulateMedia({ colorScheme: "light" });
+
 await page.evaluate(() => {
   const div = document.createElement("div");
   div.id = "late";

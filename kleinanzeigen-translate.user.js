@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Kleinanzeigen in English
 // @namespace    https://github.com/kasparek-net
-// @description  Automatically translates Kleinanzeigen.de from German to English and hides ads
-// @version      1.1
+// @description  Automatically translates Kleinanzeigen.de from German to English, hides ads and adds a dark mode
+// @version      1.2
 // @license      MIT
 // @match        *://*.kleinanzeigen.de/*
 // @run-at       document-start
@@ -35,7 +35,16 @@
   adStyle.textContent =
     adSelector +
     " { display: none !important; }\n" +
-    ".site-base--left-banner, .site-base--right-banner { visibility: hidden !important; }";
+    ".site-base--left-banner, .site-base--right-banner { visibility: hidden !important; }\n" +
+    // Kleinanzeigen has no dark theme, so the page is inverted and media flipped back.
+    // Modal dialogs live in the top layer outside the root filter and need their own.
+    `@media (prefers-color-scheme: dark) {
+      html, dialog:modal, :popover-open { filter: invert(0.9) hue-rotate(180deg) !important; }
+      html { background: #fff !important; }
+      img, video, iframe, canvas, picture, [style*="background-image"] { filter: invert(1) hue-rotate(180deg) !important; }
+      picture img, [style*="background-image"] img { filter: none !important; }
+      dialog:modal::backdrop { background: rgba(0, 0, 0, 0.6) !important; }
+    }`;
   if (document.documentElement) document.documentElement.append(adStyle);
   else
     new MutationObserver((_, o) => {

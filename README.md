@@ -1,6 +1,6 @@
 # Kleinanzeigen in English
 
-Userscript, který automaticky přeloží Kleinanzeigen.de z němčiny do angličtiny. Přeloží texty na stránce, inzeráty, filtry, placeholdery i titulek záložky. Obsah, který se načte později, přeloží hned, jak se objeví. Zároveň skryje reklamy: bannery, sponzorované nabídky ve výpisu i u inzerátu a celoobrazovkové okno s reklamou na aplikaci.
+Userscript, který automaticky přeloží Kleinanzeigen.de z němčiny do angličtiny. Přeloží texty na stránce, inzeráty, filtry, placeholdery i titulek záložky. Obsah, který se načte později, přeloží hned, jak se objeví. Zároveň skryje reklamy: bannery, sponzorované nabídky ve výpisu i u inzerátu a celoobrazovkové okno s reklamou na aplikaci. Když má systém zapnutý tmavý vzhled, přepne stránku do tmavého režimu.
 
 ## Instalace
 

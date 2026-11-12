@@ -2,12 +2,11 @@
 // @name         Kleinanzeigen in English
 // @namespace    https://github.com/kasparek-net
 // @description  Automatically translates Kleinanzeigen.de from German to English, hides ads and adds a dark mode
-// @version      1.2
+// @version      1.3
 // @license      MIT
 // @match        *://*.kleinanzeigen.de/*
 // @run-at       document-start
-// @grant        GM.xmlHttpRequest
-// @connect      translate.googleapis.com
+// @grant        none
 // @homepageURL  https://github.com/kasparek-net/kleinanzeigen-translate
 // @updateURL    https://raw.githubusercontent.com/kasparek-net/kleinanzeigen-translate/main/kleinanzeigen-translate.user.js
 // @downloadURL  https://raw.githubusercontent.com/kasparek-net/kleinanzeigen-translate/main/kleinanzeigen-translate.user.js
@@ -67,16 +66,6 @@
     const url =
       "https://translate.googleapis.com/translate_a/single?client=gtx&sl=de&tl=en&dt=t&q=" +
       encodeURIComponent(text);
-    if (typeof GM !== "undefined" && GM.xmlHttpRequest) {
-      return new Promise((resolve, reject) =>
-        GM.xmlHttpRequest({
-          method: "GET",
-          url,
-          onload: (r) => (r.status === 200 ? resolve(JSON.parse(r.responseText)) : reject(r.status)),
-          onerror: reject,
-        })
-      );
-    }
     return fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
   }
 
